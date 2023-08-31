@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -23,49 +24,53 @@ func main() {
 	http.HandleFunc("/", BuscaCepHandle)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		return
+		fmt.Printf("ListenAndServe error: %v", err)
 	}
 }
 
 func BuscaCepHandle(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		w.WriteHeader(http.StatusNotFound)
+		http.NotFound(w, r)
 		return
 	}
 	cepParam := r.URL.Query().Get("cep")
 	if cepParam == "" || len(cepParam) != 8 {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "Invalid cep parameter", http.StatusBadRequest)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	viaCep, err := BuscaCep(cepParam)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error getting CEP details: %v", err), http.StatusInternalServerError)
 		return
 	}
 	err = json.NewEncoder(w).Encode(viaCep)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("Error encoding response: %v", err), http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func BuscaCep(cep string) (*ViaCep, error) {
 	url := "https://viacep.com.br/ws/" + cep + "/json/"
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("HTTP request error: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Reading body error: %w", err)
 	}
 	var viaCep ViaCep
 	err = json.Unmarshal(body, &viaCep)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("JSON unmarshalling error: %w", err)
 	}
 	return &viaCep, nil
 }
