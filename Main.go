@@ -8,16 +8,20 @@ import (
 )
 
 type ViaCep struct {
-	Cep         string `json:"cep"`
-	Logradouro  string `json:"logradouro"`
-	Complemento string `json:"complemento"`
-	Bairro      string `json:"bairro"`
-	Localidade  string `json:"localidade"`
-	Uf          string `json:"uf"`
-	Ibge        string `json:"ibge"`
-	Gia         string `json:"gia"`
-	Ddd         string `json:"ddd"`
-	Siafi       string `json:"siafi"`
+	Cep        string `json:"cep"`
+	Logradouro string `json:"logradouro"`
+	Bairro     string `json:"bairro"`
+	Localidade string `json:"localidade"`
+	Uf         string `json:"uf"`
+	Ibge       string `json:"ibge"`
+	Gia        string `json:"gia"`
+	Ddd        string `json:"ddd"`
+	Siafi      string `json:"siafi"`
+}
+
+// isEmpty retorna true se todas as propriedades da estrutura ViaCep estiverem vazias
+func (v ViaCep) isEmpty() bool {
+	return v.Cep == "" && v.Logradouro == "" && v.Bairro == "" && v.Localidade == "" && v.Uf == "" && v.Ibge == "" && v.Gia == "" && v.Ddd == "" && v.Siafi == ""
 }
 
 func main() {
@@ -44,6 +48,10 @@ func BuscaCepHandle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error getting CEP details: %v", err), http.StatusInternalServerError)
 		return
 	}
+	if viaCep.isEmpty() {
+		http.Error(w, "CEP not found", http.StatusNotFound)
+		return
+	}
 	err = json.NewEncoder(w).Encode(viaCep)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error encoding response: %v", err), http.StatusInternalServerError)
@@ -65,7 +73,7 @@ func BuscaCep(cep string) (*ViaCep, error) {
 	}(resp.Body)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Reading body error: %w", err)
+		return nil, fmt.Errorf("reading body error: %w", err)
 	}
 	var viaCep ViaCep
 	err = json.Unmarshal(body, &viaCep)
