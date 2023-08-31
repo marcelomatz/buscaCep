@@ -1,7 +1,7 @@
 package domain_test
 
 import (
-	"http_buscaCep/domain"
+	"http_buscaCep/backend/domain"
 	"testing"
 )
 

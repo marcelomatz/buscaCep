@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"http_buscaCep/handlers"
+	"http_buscaCep/backend/handlers"
+	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", handlers.BuscaCepHandle)
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Printf("ListenAndServe error: %v", err)
-	}
+	http.HandleFunc("/", handlers.IndexHandler)
+	http.HandleFunc("/busca", handlers.BuscaCepHandle)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

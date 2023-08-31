@@ -3,12 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"http_buscaCep/domain"
+	"http_buscaCep/backend/domain"
 	"net/http"
 )
 
 func BuscaCepHandle(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+	if r.URL.Path != "/busca" {
 		http.NotFound(w, r)
 		return
 	}

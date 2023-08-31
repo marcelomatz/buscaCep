@@ -1,7 +1,7 @@
 package handlers_test
 
 import (
-	"http_buscaCep/handlers"
+	"http_buscaCep/backend/handlers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
