@@ -19,8 +19,8 @@ type ViaCep struct {
 	Siafi      string `json:"siafi"`
 }
 
-// isEmpty retorna true se todas as propriedades da estrutura ViaCep estiverem vazias
-func (v ViaCep) isEmpty() bool {
+// IsEmpty retorna true se todas as propriedades da estrutura ViaCep estiverem vazias
+func (v ViaCep) IsEmpty() bool {
 	return v.Cep == "" && v.Logradouro == "" && v.Bairro == "" && v.Localidade == "" && v.Uf == "" && v.Ibge == "" && v.Gia == "" && v.Ddd == "" && v.Siafi == ""
 }
 
@@ -45,7 +45,7 @@ func BuscaCep(cep string) (*ViaCep, error) {
 	if err != nil {
 		return nil, fmt.Errorf("JSON unmarshalling error: %w", err)
 	}
-	if viaCep.isEmpty() {
+	if viaCep.IsEmpty() {
 		return nil, fmt.Errorf("CEP %s not found", cep)
 	}
 	return &viaCep, nil
